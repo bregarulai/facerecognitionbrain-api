@@ -1,6 +1,21 @@
 const express = require("express");
 const bcrypt = require("bcrypt-nodejs");
 const cors = require("cors");
+const knex = require("knex");
+const Knex = require("knex");
+require("dotenv").config();
+
+const postgres = Knex({
+  client: "pg",
+  connection: {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DATABASE,
+  },
+});
+
+console.log(postgres.select('*').from('users'));
 
 const app = express();
 
@@ -8,8 +23,7 @@ app.use(express.json());
 app.use(cors());
 
 const database = {
-  users: [
-    {
+  users: [{
       id: "123",
       name: "john",
       email: "john@gmail.com",
@@ -26,8 +40,7 @@ const database = {
       joined: new Date(),
     },
   ],
-  login: [
-    {
+  login: [{
       id: "987",
       hash: "",
       email: "john@gmail.com",
@@ -64,7 +77,11 @@ app.post("/signin", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const { email, name, password } = req.body;
+  const {
+    email,
+    name,
+    password
+  } = req.body;
   /*
   bcrypt.hash(password, null, null, function (err, hash) {
     // Store hash in your password DB.
@@ -81,7 +98,9 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/profile/:id", (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   let found = false;
   database.users.forEach((user) => {
     if (user.id === id) {
@@ -95,7 +114,9 @@ app.get("/profile/:id", (req, res) => {
 });
 
 app.put("/image", (req, res) => {
-  const { id } = req.body;
+  const {
+    id
+  } = req.body;
   let found = false;
   database.users.forEach((user) => {
     if (user.id === id) {
