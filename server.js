@@ -5,7 +5,7 @@ const knex = require("knex");
 const Knex = require("knex");
 require("dotenv").config();
 
-const postgres = Knex({
+const db = Knex({
   client: "pg",
   connection: {
     host: process.env.DB_HOST,
@@ -15,7 +15,10 @@ const postgres = Knex({
   },
 });
 
-console.log(postgres.select('*').from('users'));
+db.select('*').from('users')
+  .then(data => {
+    console.log(data);
+  });
 
 const app = express();
 
@@ -87,13 +90,12 @@ app.post("/register", (req, res) => {
     // Store hash in your password DB.
   });
   */
-  database.users.push({
-    id: "125",
-    name: name,
+  db('users').insert({
     email: email,
-    entries: 0,
-    joined: new Date(),
-  });
+    name: name,
+    joined: new Date()
+
+  }).then(console.log)
   res.json(database.users[database.users.length - 1]);
 });
 
