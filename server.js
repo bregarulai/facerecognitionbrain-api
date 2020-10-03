@@ -21,7 +21,8 @@ app.use(express.json());
 app.use(cors());
 
 const database = {
-  users: [{
+  users: [
+    {
       id: "123",
       name: "john",
       email: "john@gmail.com",
@@ -38,7 +39,8 @@ const database = {
       joined: new Date(),
     },
   ],
-  login: [{
+  login: [
+    {
       id: "987",
       hash: "",
       email: "john@gmail.com",
@@ -75,49 +77,44 @@ app.post("/signin", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const {
-    email,
-    name,
-    password
-  } = req.body;
+  const { email, name, password } = req.body;
   /*
   bcrypt.hash(password, null, null, function (err, hash) {
     // Store hash in your password DB.
   });
   */
-  db('users')
-    .returning('*')
+  db("users")
+    .returning("*")
     .insert({
       email: email,
       name: name,
-      joined: new Date()
-
-    }).then(user => {
+      joined: new Date(),
+    })
+    .then((user) => {
       res.json(user[0]);
     })
-    .catch(err => res.status(400).json('Unable to register.'))
+    .catch((err) => res.status(400).json("Unable to register."));
 });
 
 app.get("/profile/:id", (req, res) => {
-  const {
-    id
-  } = req.params;
-  let found = false;
-  database.users.forEach((user) => {
-    if (user.id === id) {
-      found = true;
-      return res.json(user);
-    }
-  });
-  if (!found) {
-    res.status(404).json("User not found.");
-  }
+  const { id } = req.params;
+  db.select("*")
+    .from("users")
+    .where({ id })
+    .then((user) => {
+      if (user.length) {
+        res.json(user[0]);
+      } else {
+        res.status(400).json("User not found.");
+      }
+    })
+    .catch((err) => {
+      res.status(400).json("Error getting user.");
+    });
 });
 
 app.put("/image", (req, res) => {
-  const {
-    id
-  } = req.body;
+  const { id } = req.body;
   let found = false;
   database.users.forEach((user) => {
     if (user.id === id) {
